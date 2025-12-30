@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hapi/boom": "^2.10.1",
+    "@hapi/boom": "^9.0.0",
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "pino": "^8.16.2",
     "qrcode-terminal": "^0.12.0",
