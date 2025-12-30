@@ -1,26 +1,17 @@
-import { dirname, join } from 'path'
-import { createRequire } from 'module'
+import { join, dirname } from 'path'
+import { createRequire } from "module";
 import { fileURLToPath } from 'url'
-import { fork, setupMaster } from 'cluster'
-import { unwatchFile, watchFile } from 'fs'
-import cfonts from 'cfonts'
+import { setupMaster, fork } from 'cluster'
+import { watchFile, unwatchFile } from 'fs'
+import cfonts from 'cfonts';
+import chalk from "chalk"
 import { createInterface } from 'readline'
 import yargs from 'yargs'
-import express from 'express'
-import chalk from 'chalk'
-import path from 'path'
-import os from 'os'
-import { promises as fsPromises } from 'fs'
-
-// https://stackoverflow.com/a/50052194
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const require = createRequire(__dirname) //Incorpora la capacidad de crear el método 'requerir'
-const {name, author} = require(join(__dirname, './package.json')) //https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
-const {say} = cfonts
+const require = createRequire(__dirname) 
+const { name, author } = require(join(__dirname, './package.json')) 
+const { say } = cfonts
 const rl = createInterface(process.stdin, process.stdout)
-
-//const app = express()
-//const port = process.env.PORT || 8080;
 say('UpaBot-MD', {
 font: 'chrome',
 align: 'center',
