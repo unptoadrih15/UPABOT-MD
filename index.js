@@ -1,67 +1,37 @@
-import { join, dirname } from 'path'
-import { createRequire } from "module";
-import { fileURLToPath } from 'url'
-import { setupMaster, fork } from 'cluster'
-import { watchFile, unwatchFile } from 'fs'
-import cfonts from 'cfonts';
-import chalk from "chalk"
-import { createInterface } from 'readline'
-import yargs from 'yargs'
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const require = createRequire(__dirname) 
-const { name, author } = require(join(__dirname, './package.json')) 
-const { say } = cfonts
-const rl = createInterface(process.stdin, process.stdout)
+import { makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } from '@whiskeysockets/baileys'
+import pino from 'pino'
+import { Boom } from '@hapi/boom'
 
-say('UpaBot-MD', {
-font: 'chrome',
-align: 'center',
-gradient: ['red', 'magenta']})
-say(`Creado por Unptoadrih15`, {
-font: 'console',
-align: 'center',
-gradient: ['red', 'magenta']})
+async function connectToWhatsApp() {
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
+    const { version, isLatest } = await fetchLatestBaileysVersion()
+    console.log(`Usando WhatsApp v${version.join('.')}, es la última: ${isLatest}`)
 
-var isRunning = false
-/**
-* Start a js file
-* @param {String} file `path/to/file`
-*/
-function start(file) {
-if (isRunning) return
-isRunning = true
-let args = [join(__dirname, file), ...process.argv.slice(2)]
-  
-setupMaster({
-exec: args[0],
-args: args.slice(1), })
-let p = fork()
-p.on('message', data => {
-switch (data) {
-case 'reset':
-p.process.kill()
-isRunning = false
-start.apply(this, arguments)
-break
-case 'uptime':
-p.send(process.uptime())
-break }})
-p.on('exit', (_, code) => {
-isRunning = false
-console.error('⚠️ Error Inesperado ⚠️', code)
-  
-p.process.kill()
-isRunning = false
-start.apply(this, arguments)
-  
-if (process.env.pm_id) {
-process.exit(1)
-} else {
-process.exit()
+    const sock = makeWASocket({
+        version,
+        auth: state,
+        printQRInTerminal: true,
+        logger: pino({ level: 'silent' }),
+        browser: ["UPABOT-2025", "Safari", "1.0.0"]
+    })
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect } = update
+        if(connection === 'close') {
+            const shouldReconnect = (lastDisconnect.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut
+            console.log('Conexión cerrada. ¿Reconectando?', shouldReconnect)
+            if(shouldReconnect) connectToWhatsApp()
+        } else if(connection === 'open') {
+            console.log('✅ Bot conectado con éxito a finales de 2025')
+        }
+    })
+
+    sock.ev.on('creds.update', saveCreds)
+
+    sock.ev.on('messages.upsert', async m => {
+        // Aquí es donde integras la lógica de los comandos del bot
+        console.log(JSON.stringify(m, undefined, 2))
+    })
 }
-})
-let opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
-if (!opts['test'])
-if (!rl.listenerCount()) rl.on('line', line => {
-p.emit('message', line.trim())})}
-start('main.js')
+
+connectToWhatsApp()
