@@ -22,18 +22,58 @@ const rl = createInterface(process.stdin, process.stdout)
 //const app = express()
 //const port = process.env.PORT || 8080;
 
-say('Upa\nBot\nMD', {
+say('UpaBot-MD', {
 font: 'chrome',
 align: 'center',
-gradient: ['red', 'magenta']
-})
-say('Creado por Unptoadrih15', {
+gradient: ['red', 'magenta']})
+say(`Creado por Unptoadrih15`, {
 font: 'console',
 align: 'center',
-gradient: ['red', 'magenta']
-})
+gradient: ['red', 'magenta']})
 
 var isRunning = false
+/**
+* Start a js file
+* @param {String} file `path/to/file`
+*/
+function start(file) {
+if (isRunning) return
+isRunning = true
+let args = [join(__dirname, file), ...process.argv.slice(2)]
+  
+setupMaster({
+exec: args[0],
+args: args.slice(1), })
+let p = fork()
+p.on('message', data => {
+switch (data) {
+case 'reset':
+p.process.kill()
+isRunning = false
+start.apply(this, arguments)
+break
+case 'uptime':
+p.send(process.uptime())
+break }})
+p.on('exit', (_, code) => {
+isRunning = false
+console.error('⚠️ Error Inesperado ⚠️', code)
+  
+p.process.kill()
+isRunning = false
+start.apply(this, arguments)
+  
+if (process.env.pm_id) {
+process.exit(1)
+} else {
+process.exit()
+}
+})
+let opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
+if (!opts['test'])
+if (!rl.listenerCount()) rl.on('line', line => {
+p.emit('message', line.trim())})}
+start('main.js')
 
 process.on('uncaughtException', (err) => {
 if (err.code === 'ENOSPC') {
