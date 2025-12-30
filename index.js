@@ -3,7 +3,6 @@ import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import cluster from 'cluster' // Importación completa para mayor compatibilidad
 import { createInterface } from 'readline'
-import yargs from 'yargs'
 import cfonts from 'cfonts'
 import chalk from 'chalk'
 
