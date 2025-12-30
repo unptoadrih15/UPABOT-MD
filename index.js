@@ -126,7 +126,7 @@ p.emit('message', line.trim())
 })
 }
 
-start('main.js')isRunning = false
+start('main.js'); isRunning = false
 start.apply(this, arguments)
 break
 case 'uptime':
