@@ -11,6 +11,7 @@
     "test": "node index.js --test"
   },
   "dependencies": {
+    "@whiskeysockets/baileys": "github:gatanina-li/baileys",
     "@bochilteam/scraper": "^4.2.4",
     "@shineiichijo/marika": "^2.0.6",
     "@tensorflow/tfjs": "^3.18.0",
