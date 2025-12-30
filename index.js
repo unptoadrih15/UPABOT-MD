@@ -128,7 +128,6 @@ p.emit('message', line.trim())
 
 start('main.js'); isRunning = false
 start.apply(this, arguments)
-return
 case 'uptime':
 p.send(process.uptime())
 break
