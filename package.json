@@ -76,6 +76,6 @@
     "ytdl-core": "^4.11.4"
   },
   "devDependencies": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0"
   }
 }
